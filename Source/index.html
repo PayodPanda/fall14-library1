@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	 <meta http-equiv="refresh" content="60">
+    <title>Mockup</title>
+    <style>
+        #temperature {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font: 30px calibri, sans-serif;
+            text-align: right;
+        }
+        
+        #draw-shapes {
+            z-index: 10;
+        }
+        
+        .colorbox {
+			display: inline-block;
+			width: 20px;
+			height: 20px;
+		}
+		
+    </style>
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://lib.ivank.net/ivank.js"></script>
+	
+    <script type="text/javascript" src="scripts/jquery.simpleWeather.js"></script>
+    <script type="text/javascript" src="scripts/Polygons.js"></script>
+	
+</head>
+
+<body>
+<div id="temperature"></div>
+<canvas id="ivank"></canvas>
+</body>
+</html>
