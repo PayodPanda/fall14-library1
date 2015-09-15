@@ -1,26 +1,30 @@
 
-    //color constants for per-weather
-    var above95 = ["E80014", "FF640D", "F5AB00"]; //brightest red, orange, yellow
-    var between8595 = ["E84718", "FFAA27", "F5D81A"]; //slightly more muted red, orange, yellow
-    var between7585 = ["E8E300", "8EFF00", "0AF500"];
-    var between6575 = ["DCE834", "50FF25", "24F55A"]; //green, yellow-green, aqua
-    var between5565 = ["37E812", "14FF55", "13F5B0"]; //2 muted sea greens, blue
-    var between4555 = ["1FE865", "22FFDB", "1FB4F5"]; //brightest red, yellow, orange CHANGE ME
-    var between3545 = ["2DE899", "00EEFF", "2E8DF5"]; //brightest red, yellow, orange CHANGE ME
-    var between2535 = ["59E7E8", "61B0FF", "5F61F5"]; //brightest red, yellow, orange CHANGE ME
-    var below25 = ["1FD9E8", "9CE0FF", "69FFE5"]; //brightest red, yellow, orange CHANGE ME
+    //color constants for per-weather //edited, PayodPanda
+    var above95 = ["E88436", "FF7D48", "E85036"]; //brightest red, orange, yellow
+    var between8595 = ["E8AD52", "FFAE67", "E88352"]; //slightly more muted red, orange, yellow
+    var between7585 = ["FFD83A", "FFB546", "FF783A"];
+    var between6575 = ["FFE95A", "FFCC67", "FF9E5A"]; //green, yellow-green, aqua
+    var between5565 = ["92FF8B", "E6FF98", "FFF08B"]; //2 muted sea greens, blue
+    var between4555 = ["87FFD4", "94FF9C", "D0FF87"]; //
+    var between3545 = ["8DCFFF", "99FFF3", "8DFFB1"]; //
+    var between2535 = ["828EE8", "9BC1FF", "82C4E8"]; //
+    var below25 = ["82C4E8", "509EFF", "43EAFF"]; //
     
     var TIME = 60; //how many frames the animation is
     var FRAME_RATE = 5; //how many millis/frame
-    var MAX_ROUNDS = 500; //this is now how many rounds to wait before beginning the fadeout 
+    var MAX_ROUNDS = 10000; //this is now how many rounds to wait before beginning the fadeout //orig=50
     var TIMEOUT = 500; //how many millis to wait before animating again (all else held constant, 500 = as soon as done flipping)
     var WEATHER_INITIALIZATION = 1500; //how many millis to wait after getting the initial weather to start animating, so colors are initializes and correct
-    var WEATHER_REFRESH = 1000 * 60; //millis between checking for the weather. Currently 1 minute
+    var WEATHER_REFRESH = 1000 * 240; //millis between checking for the weather. Currently 1 minute
     
     var stage; //the stage == the canvas element
     var points; //an array of Point objects
-    var numVertices = 3; //number of vertices/sides for this polygon
+	
+	var vertexFrom = 4; //min. number of vertices //PayodPanda
+	var vertexTo = 9; //max no. of vertices //PayodPanda
+    var numVertices = vertexFrom; //number of vertices/sides for this polygon initially set to min number //PayodPanda	
     var sideLength = 150; //length of the sides of the regular polygon
+	
     var colors; //an array of possible colors, color-coordinated according to weather
     var inverted; //this is currently required for triangles to animate correctly. TODO can I get rid of this?
     var possibleMoves = new Array(numVertices); //will be an array of booleans; mark out polygons that went off the page
@@ -29,11 +33,11 @@
         getWeather(); //this initializes the colors and everything, so it needs to happen originally
         
         stage = new Stage("ivank");
-		sideLength = stage.stageHeight / 6; //length of the sides of the regular polygon
+		sideLength = stage.stageHeight / 3; //length of the sides of the regular polygon //PayodPanda
         
-        numVertices = Math.floor(Math.random() * 5 + 4); //between 4 and 8
+        numVertices = Math.floor(Math.random() * ((vertexTo-vertexFrom)+1) + vertexFrom); //between 4 and 9 //PayodPanda
         
-        setTimeout(function() {initialize(stage)}, WEATHER_INITIALIZATION); //this is so the colors are initialized before this happens (it sometimes broke at just TIMEOUT when TIMEOUT is 500)
+        setTimeout(function() {initialize(stage)}, WEATHER_INITIALIZATION); //this is so the colours are initialized before this happens (it sometimes broke at just TIMEOUT when TIMEOUT is 500)
     });
     
     function initialize() {
@@ -51,16 +55,18 @@
             possibleMoves[i] = true;
         }
         setTimeout(function() {animate(s)}, TIMEOUT); //animate the shape
-        setTimeout(function() {fade(s, 0.5 / TIME, 0)}, TIMEOUT * MAX_ROUNDS); //fade the center triangle, too
+        setTimeout(function() {fade(s, 0.5 / TIME, 0)}, TIMEOUT * MAX_ROUNDS); //fade the centre triangle, too
     }
     
     function makePoly() {
         if (points == undefined) {
             initializePoints();
         }
+		
         var s = new Sprite();
-        
-        s.graphics.beginFill("0x" + colors[Math.floor(Math.random() * 3)], 0.05); //orig= 0.5
+        s.graphics.beginFill("0x" + colors[Math.floor(Math.random() * 3)], 0.02); //orig= 0.5
+		s.graphics.lineStyle(4, "0x" + colors[Math.floor(Math.random() * 3)], 0.4); //add a stroke for visual interest //PayodPanda
+		
         s.graphics.moveTo(points[0].x, points[0].y);
         for (var i = 1; i < numVertices; i++) {
             s.graphics.lineTo(points[i].x, points[i].y);
@@ -75,7 +81,7 @@
         //TODO see if this still works for other polys
         points[numVertices - 1] = Point.polar(sideLength, 0);
         for (var i = 1; i < numVertices; i++) {
-            points[i - 1] = Point.polar(sideLength, (i * 2 * Math.PI) / numVertices);
+            points[i - 1] = Point.polar(Math.random() * sideLength, (i * 2 * Math.PI) / numVertices);  //PayodPanda
         }
     }
     
@@ -133,7 +139,7 @@
         newpoly.y = polygon.y;
         
         //TODO this needs to be calculated and tested for polygons besides triangles
-        newpoly.rotation = 30 * ((numVertices + 1) * overside + 1);
+        newpoly.rotation = (0.5+Math.random()) * 30 * ((numVertices + 1) * overside + 1);
         newpoly.scaleX = polygon.scaleX;
             
         stage.addChild(newpoly);
@@ -214,21 +220,22 @@
          if (degree < 0)
             degree = 0;
 			
-		degree = 0;
          
          //FINALLY set the color of the background to the time of day and the temperature dav so it shows up
          var bg = Math.round(255 * degree);
 		 
-		 // Use HSL system to calculate color // PayodPanda
-		 var hue = (240 + degree * 180) % 360;
-		 var lightness = 40 + Math.round(degree * 40);
-		 var saturation = 20 + Math.round(degree * 30);
+		 // Use HSL system to calculate color //PayodPanda
+		 var bgHue = (240 + degree * 180) % 360;
+		 var bgLightness = 0 + degree * 80;
+		 var bgSaturation = 20 + Math.round(degree * 30);
 		 
-         var txt = (lightness < 60) ? 200 : 20; //white if < 50% gray, black if >= 50% gray
-         $("body").css("background-color", "hsla(" + hue + ", " + saturation + "%," + lightness + "%, 0.5)"); //Blue to Yellow to Blue //PayodPanda
+         //var txt = (bgLightness < 60) ? 200 : 20; //white if < 50% gray, black if >= 50% gray
+		 var txt = (bgLightness+50)%100;
+         $("body").css("background-color", "hsla(" + bgHue + ", " + bgSaturation + "%," + bgLightness + "%, 0.5)"); //Blue to Yellow to Blue //PayodPanda
 		 
          //$("body").css("background", "rgb(" + bg + ", " + bg + ", " + bg + ")"); //TODO make me care about the time of day
-         $("#temperature").css("color", "rgb(" + txt + ", " + txt + ", " + txt + ")");
+         $("#temperature").css("color", "hsl( 0, 0%, " + txt + "%)");
+         $("#attribution").css("color", "hsl( 0, 0%, " + txt + "%)");
          
           //weather.temp = TEMPERATURE; //temporary, so I can override the weather
           //now get a random color based on the current temperature
